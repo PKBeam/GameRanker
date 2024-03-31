@@ -7,10 +7,11 @@ import { Navbar, Button, Modal, Form } from "react-bulma-components"
 class App extends Component {
   constructor(props) {
     super(props);
+    let savedRanking = this.loadListFromWebStorage() ?? "[]"
     this.state = {
       addGame: false,
-      games: [
-      ]
+      games: JSON.parse(savedRanking),
+      editIndex: null
     }
     this.beginAddGame = this.beginAddGame.bind(this)
     this.finishAddGame = this.finishAddGame.bind(this)
@@ -26,12 +27,30 @@ class App extends Component {
   }
   
   finishAddGame(gameState) {
-    this.state.games.push(gameState)
-    this.closeModal()
+    let games = this.state.games
+    if (this.state.editIndex !== null) {
+      games[this.state.editIndex] = gameState
+    } else {
+      games.push(gameState)
+    }
+    this.setState({
+      games: games
+    }, () => {
+      this.closeModal()
+      this.saveListToWebStorage(JSON.stringify(this.state.games))
+    })
+  }
+
+  beginEditGame(index) {
+    this.setState({
+      addGame: true,
+      editIndex: parseInt(index)
+    })
   }
   
   saveList() {
     const fileData = JSON.stringify(this.state.games);
+    this.saveListToWebStorage(fileData)
     const blob = new Blob([fileData], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -39,11 +58,16 @@ class App extends Component {
     link.href = url;
     link.click();
   }
+
+  saveListToWebStorage(list) {
+    window.localStorage.setItem("savedRanking", list)
+  }
   
   loadList(e) {
     var reader = new FileReader();
 
     reader.onload = (e) => {
+      this.saveListToWebStorage(reader.result)
       var j = JSON.parse(reader.result)
       this.setState({
         games: j
@@ -52,12 +76,17 @@ class App extends Component {
 
     reader.readAsText(e.target.files[0], "utf-8");
   }
+
+  loadListFromWebStorage() {
+    return window.localStorage.getItem("savedRanking")
+  }
   
   closeModal() {
     this.setState({addGame: false});
   }
 
   render() {
+    let editingGame = this.state.editIndex === null ? null : this.state.games[parseInt(this.state.editIndex)]
     return (
       <div className="App">
         {/* NAVBAR */}
@@ -83,13 +112,14 @@ class App extends Component {
             </div>
           </div>
           {/* DISPLAY */}
-          <div className="grid mt-5 is-col-min-7" style={{width: "100%"}}>
+          <div className="grid mt-5 is-col-min-1" style={{width: "100%"}}>
             {this.state.games.map((g, i) => 
               (<div className="cell" key={i}><GameCard
                 name={g.title ?? "Untitled game"}
                 imgSrc={g.imgUrl}
                 platform={g.platform}
                 rating={g.ratingTotal}
+                onClick={(e) => this.beginEditGame(i)}
               /></div>)
             )}
           </div>
@@ -98,7 +128,13 @@ class App extends Component {
         {/* MODAL */}
         <Modal show={this.state.addGame} onClose={this.closeModal}>
           <GameAddModal 
-            show={this.state.addGame} 
+            title={this.state.editIndex === null ? null : editingGame.title}
+            imgUrl={this.state.editIndex === null ? null : editingGame.imgUrl}
+            platform={this.state.editIndex === null ? null : editingGame.platform}
+            ratingStory={this.state.editIndex === null ? null : editingGame.ratingStory}
+            ratingGplay={this.state.editIndex === null ? null : editingGame.ratingGplay}
+            ratingTotal={this.state.editIndex === null ? null : editingGame.ratingTotal}
+            show={this.state.addGame}
             onFinish={this.finishAddGame}
           />
         </Modal>
