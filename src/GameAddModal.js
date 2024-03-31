@@ -17,8 +17,8 @@ class GameAddModal extends Component {
 
   validateRating(x) {
     let nx = Number(x)
-    if (x == "" || nx == NaN) {
-      return null
+    if (x === null || x === "" || isNaN(nx)) {
+      return null 
     } else {
       return Math.max(Math.min(nx, 10), 0)
     }
@@ -29,7 +29,7 @@ class GameAddModal extends Component {
     request.open("GET", url, true);
     request.send();
     request.onload = () => {
-      return request.status == 200
+      return request.status === 200
     }
   }
 
@@ -39,7 +39,7 @@ class GameAddModal extends Component {
     let rt = this.validateRating(this.state.ratingTotal)
     
     let url = this.state.imgUrl
-    if (url == "" || !this.imgUrlValid(url)) {
+    if (url === "" || !this.imgUrlValid(url)) {
       url = null
     }
     

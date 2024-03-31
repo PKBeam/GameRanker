@@ -2,7 +2,7 @@ import "./App.css";
 import React, { Component } from 'react';
 import GameCard from "./GameCard.js"
 import GameAddModal from "./GameAddModal.js"
-import { Navbar, Button, Modal } from "react-bulma-components"
+import { Navbar, Button, Modal, Form } from "react-bulma-components"
 
 class App extends Component {
   constructor(props) {
@@ -10,34 +10,53 @@ class App extends Component {
     this.state = {
       addGame: false,
       games: [
-        {
-          title: "Banishers: Ghosts of New Eden", 
-          imgUrl: "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fimages.wallpapersden.com%2Fimage%2Fdownload%2Fbanishers-ghosts-of-new-eden-8k-gaming_bmZla2eUmZqaraWkpJRobWllrWdpZWU.jpg&f=1&nofb=1&ipt=26672634bf575db644752df3ec0b7698ddba992128bb83d0f1928c773f06646f&ipo=images",
-          platform: "PC",
-          ratingTotal: "9.6"
-        },
-        {
-          title: "Assassin's Creed Valhalla", 
-          imgUrl: "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwallpapercave.com%2Fwp%2Fwp6364510.jpg&f=1&nofb=1&ipt=b49200f0e81fdeab99ccbe80f88c755affe775356b63de40807ef1ad5ec50d2d&ipo=images",
-          platform: "PC",
-          ratingTotal: "8.3"
-        },
       ]
     }
     this.beginAddGame = this.beginAddGame.bind(this)
+    this.finishAddGame = this.finishAddGame.bind(this)
+    this.saveList = this.saveList.bind(this)
+    this.loadList = this.loadList.bind(this)
     this.closeModal = this.closeModal.bind(this)
   }
+  
   beginAddGame() {
     this.setState({
       addGame: true
     })
   }
+  
   finishAddGame(gameState) {
-
+    this.state.games.push(gameState)
+    this.closeModal()
   }
+  
+  saveList() {
+    const fileData = JSON.stringify(this.state.games);
+    const blob = new Blob([fileData], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.download = `rating-list-${Date.now()}.txt`;
+    link.href = url;
+    link.click();
+  }
+  
+  loadList(e) {
+    var reader = new FileReader();
+
+    reader.onload = (e) => {
+      var j = JSON.parse(reader.result)
+      this.setState({
+        games: j
+      })
+    }
+
+    reader.readAsText(e.target.files[0], "utf-8");
+  }
+  
   closeModal() {
     this.setState({addGame: false});
   }
+
   render() {
     return (
       <div className="App">
@@ -56,20 +75,22 @@ class App extends Component {
             <div>
               <Button onClick={this.beginAddGame}>Add Game</Button>
             </div>
-            <div>
-              <Button className="mr-1">Load</Button>
-              <Button className="ml-1">Save</Button>
+            <div className="is-flex">
+              <Form.InputFile className="mr-1" onInput={this.loadList} label="Load"></Form.InputFile>
+              <div>
+                <Button className="ml-1" onClick={this.saveList}>Save</Button>
+              </div>
             </div>
           </div>
           {/* DISPLAY */}
-          <div className="is-flex mt-5">
-            {this.state.games.map(g => 
-              (<GameCard
-                name={g.title}
+          <div className="grid mt-5 is-col-min-7" style={{width: "100%"}}>
+            {this.state.games.map((g, i) => 
+              (<div className="cell" key={i}><GameCard
+                name={g.title ?? "Untitled game"}
                 imgSrc={g.imgUrl}
                 platform={g.platform}
                 rating={g.ratingTotal}
-              />)
+              /></div>)
             )}
           </div>
         </div>
@@ -78,7 +99,7 @@ class App extends Component {
         <Modal show={this.state.addGame} onClose={this.closeModal}>
           <GameAddModal 
             show={this.state.addGame} 
-            onFinish={(g) => {this.state.games.push(g); this.closeModal()}}
+            onFinish={this.finishAddGame}
           />
         </Modal>
       </div>

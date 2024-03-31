@@ -13,6 +13,9 @@ class GameCard extends Component {
   }
 
   getRatingColor() {
+    if (this.state.rating === null) {
+      return "#FFFFFF"
+    }
     let w = this.state.rating / 10
     let c1 = [ 76, 175, 80]
     let c2 = [255, 193,  7]
@@ -38,18 +41,19 @@ class GameCard extends Component {
   }
        
   render() {
+    let rating = this.state.rating === null ? "N/A" : (this.state.rating * 1).toPrecision(2)
     return (
       <div className="mx-2">
-        <Card style={{width: "200px"}}>
+        <Card style={{minWidth: "200px"}}>
           <Card.Header>
             <Card.Header.Title className="is-size-7 mx-2 px-0 py-1" style={{whiteSpace: "nowrap", textOverflow: "clip", overflow: "scroll"}}>{this.state.name}</Card.Header.Title>
           </Card.Header>
           <div style={{maxHeight: "100px", minHeight:"100px", overflow: "hidden", objectFit: "cover"}}>
-            <img src={this.state.imgSrc}/>
+            <img src={this.state.imgSrc} alt={this.state.imgSrc === null ? "No cover available" : ""}/>
           </div>
           <Card.Footer>
             <Card.Footer.Item className="py-1 has-text-justified is-size-7" style={{minWidth: "33%"}}>{this.state.platform}</Card.Footer.Item>
-            <Card.Footer.Item className="py-1 has-text-justified" style={{minWidth: "33%", fontWeight:"bold", backgroundColor: this.getRatingColor()}}>{(this.state.rating * 1).toPrecision(2)}</Card.Footer.Item>
+            <Card.Footer.Item className="py-1 has-text-justified" style={{minWidth: "33%", fontWeight:"bold", backgroundColor: this.getRatingColor()}}>{rating}</Card.Footer.Item>
             <Card.Header.Icon className="py-1 has-text-justified" style={{minWidth: "33%"}}>...</Card.Header.Icon>
           </Card.Footer>
         </Card>
