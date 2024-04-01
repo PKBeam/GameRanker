@@ -2,12 +2,12 @@ import "./App.css";
 import React, { Component } from 'react';
 import GameCard from "./GameCard.js"
 import GameAddModal from "./GameAddModal.js"
-import { Block, Navbar, Button, Dropdown, Modal, Form } from "react-bulma-components"
+import { Navbar, Button, Dropdown, Modal, Form } from "react-bulma-components"
 
 class App extends Component {
   sortKeys = {
     "Title": g => g.title?.toUpperCase(),
-    "Rating": g => g.ratingTotal?.toUpperCase()
+    "Rating": g => g.ratingTotal?.toUpperCase(),
   }
   filters = {
     "PC": g => g.platform == "PC",
@@ -18,7 +18,7 @@ class App extends Component {
     "Has selected rating": g => g[this.state.ratingDisplayOption] != null,
     "Has story rating": g => g.ratingStory != null,
     "Has gameplay rating": g => g.ratingGplay != null,
-    "Has overall rating": g => g.ratingTotal != null
+    "Has overall rating": g => g.ratingTotal != null,
   }
   filterCombines = {
     "AND": (x, y) => x && y,
@@ -27,15 +27,15 @@ class App extends Component {
 
   constructor(props) {
     super(props);
-    let savedRanking = this.loadListFromWebStorage() ?? "[]"
     this.state = {
       addGame: false,
-      games: JSON.parse(savedRanking),
+      games: JSON.parse(this.loadListFromWebStorage() ?? "[]"),
       editIndex: null,
+      searchFilter: null,
       filterCombineOption: "AND",
       ratingDisplayOption: "ratingTotal",
       sortOption: 1,
-      filterOptions: new Set()
+      filterOptions: new Set(),
     }
     this.beginAddGame = this.beginAddGame.bind(this)
     this.finishAddGame = this.finishAddGame.bind(this)
@@ -171,6 +171,22 @@ class App extends Component {
     return filterResults.reduce(this.filterCombines[this.state.filterCombineOption])
   }
 
+  passesSearch(g) {
+    if (this.state.searchFilter == null) {
+      return true
+    }
+    let searchTerm = this.state.searchFilter.toUpperCase();
+    let gameTitle = g.title.toUpperCase();
+
+    // if alphanumeric search term, search only alphanumberic
+    // otherwise include other special chars
+    if (searchTerm.match(/^[a-z0-9]+$/i)) {
+      gameTitle = gameTitle.replace(/\W/g, "")
+    }
+
+    return gameTitle.includes(searchTerm)
+  }
+
   render() {
     let gamesSorted = this.sortedGames(this.state.sortOption)
     let editingGame = this.state.games[this.state.editIndex]
@@ -187,13 +203,13 @@ class App extends Component {
         {/* MAIN CONTENT */}
         <div className="mt-5 mx-4">
           {/* TOOLBAR */}
-          <div className="mx-2 is-flex is-justify-content-space-between">
+          <div className="mx-2 is-flex is-justify-content-space-between is-flex-wrap-wrap">
             {/* ADD GAME */}
-            <div>
+            <div className="m-2">
               <Button className="pl-2" onClick={this.beginAddGame}>➕ Add Game</Button>
             </div>
             {/* RATING DISPLAY */}
-            <div>
+            <div className="m-2">
               <Dropdown
                 label="Rating display"
                 icon={<div className="ml-2">▼</div>}
@@ -204,8 +220,16 @@ class App extends Component {
                 <Dropdown.Item value="ratingTotal" className={"has-text-left" + (this.state.ratingDisplayOption === "ratingTotal" ? " has-text-weight-bold" : "")} renderAs="a">{"Overall"}</Dropdown.Item>
               </Dropdown>
             </div>
+            {/* SEARCH */}
+            <div className="m-2" style={{minWidth: "10em", flexGrow: "2"}}>
+              <Form.Input
+                placeholder="Search games..."
+                onChange={(e) => {this.setState({searchFilter: e.target.value})}}
+              >
+              </Form.Input>
+            </div>
             {/* SORT */}
-            <div>
+            <div className="m-2">
               <Dropdown
                 label="Sort"
                 icon={<div className="ml-2">▼</div>}
@@ -220,7 +244,7 @@ class App extends Component {
               </Dropdown>
             </div>
             {/* FILTER */}
-            <div>
+            <div className="m-2" style={{whiteSpace: "nowrap"}}>
               {/* FILTER OPTIONS */}
               <Dropdown
                 label={`Filters (${this.state.filterOptions.size})`}
@@ -244,7 +268,7 @@ class App extends Component {
               </Dropdown>
             </div>
             {/* SAVE/LOAD */}
-            <div className="is-flex">
+            <div className="is-flex m-2">
               <Form.InputFile className="mr-1" onInput={this.loadList} label="⬇ Load"></Form.InputFile>
               <div>
                 <Button className="ml-1" onClick={this.saveList}>⬆ Save</Button>
@@ -252,9 +276,9 @@ class App extends Component {
             </div>
           </div>
           {/* DISPLAY */}
-          <div className="grid mt-5 is-col-min-1" style={{width: "100%"}}>
+          <div className="grid is-col-min-10 mx-2">
             {gamesSorted.map((g, i) => {
-              return this.passesFilter(g) ?
+              return this.passesFilter(g) && this.passesSearch(g) ?
                 (<div className="cell" key={i}>
                   <GameCard
                     name={g.title ?? "Untitled game"}
