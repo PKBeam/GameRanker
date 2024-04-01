@@ -7,7 +7,7 @@ class GameAddModal extends Component {
     this.state = {
       isEditing: props.isEditing,
       title: props.title,
-      platform: props.platform,
+      platform: props.platform ?? "PC",
       imgUrl: props.imgUrl,
       ratingStory: props.ratingStory,
       ratingGplay: props.ratingGplay,
