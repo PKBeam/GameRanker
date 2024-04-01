@@ -29,12 +29,17 @@ class App extends Component {
   finishAddGame(gameState) {
     let games = this.state.games
     if (this.state.editIndex !== null) {
-      games[this.state.editIndex] = gameState
+      if (gameState == null) {
+        games.splice(this.state.editIndex, 1)
+      } else {
+        games[this.state.editIndex] = gameState
+      }
     } else {
       games.push(gameState)
     }
     this.setState({
-      games: games
+      games: games,
+      editIndex: null
     }, () => {
       this.closeModal()
       this.saveListToWebStorage(JSON.stringify(this.state.games))
@@ -82,7 +87,10 @@ class App extends Component {
   }
   
   closeModal() {
-    this.setState({addGame: false});
+    this.setState({
+      addGame: false, 
+      editIndex: null
+    });
   }
 
   render() {
@@ -128,6 +136,7 @@ class App extends Component {
         {/* MODAL */}
         <Modal show={this.state.addGame} onClose={this.closeModal}>
           <GameAddModal 
+            isEditing={this.state.editIndex !== null}
             title={this.state.editIndex === null ? null : editingGame.title}
             imgUrl={this.state.editIndex === null ? null : editingGame.imgUrl}
             platform={this.state.editIndex === null ? null : editingGame.platform}

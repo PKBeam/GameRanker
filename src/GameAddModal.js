@@ -5,14 +5,17 @@ class GameAddModal extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      isEditing: props.isEditing,
       title: props.title,
       platform: props.platform,
       imgUrl: props.imgUrl,
       ratingStory: props.ratingStory,
       ratingGplay: props.ratingGplay,
       ratingTotal: props.ratingTotal,
+      deleteConfirm: false
     }
     this.submit = this.submit.bind(this)
+    this.delete = this.delete.bind(this)
   }
 
   validateRating(x) {
@@ -41,6 +44,20 @@ class GameAddModal extends Component {
     }, () => {
       this.props.onFinish(this.state)
     })
+  }
+
+  delete() {
+    if (!this.state.deleteConfirm) {
+      this.setState({
+        deleteConfirm: true
+      })
+    } else {
+      this.setState({
+        deleteConfirm: false
+      }, () => {
+        this.props.onFinish(null)
+      })
+    }
   }
 
   render() {
@@ -97,7 +114,16 @@ class GameAddModal extends Component {
             </div>
           </div>
         </Card.Content>
-        <Card.Footer className="is-flex is-justify-content-flex-end">
+        <Card.Footer className="is-flex is-justify-content-space-between">
+          <div>
+          {(!this.state.isEditing) ? null :
+          <Button 
+            className="my-3 ml-5 is-danger" 
+            onClick={this.delete}
+          >
+            {this.state.deleteConfirm ? "Confirm Delete" : "Delete Game"}
+          </Button>}
+          </div>
           <Button 
             className="my-3 mr-5" 
             onClick={this.submit}
