@@ -54,7 +54,7 @@ class GameCard extends Component {
   render() {
     let rating = this.state.rating === null ? "N/A" : (this.state.rating * 1).toPrecision(2)
     return (
-      <div className="mx-2">
+      <div className="m-2">
         <Card style={{minWidth: "200px", maxWidth: "300px", }}>
           <Card.Header>
             <Card.Header.Title className="is-size-7 mx-2 px-0 py-1" style={{whiteSpace: "nowrap", textOverflow: "clip", overflow: "scroll"}}>{this.state.name}</Card.Header.Title>
