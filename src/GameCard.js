@@ -60,7 +60,7 @@ class GameCard extends Component {
             <Card.Header.Title className="is-size-7 mx-2 px-0 py-1" style={{whiteSpace: "nowrap", textOverflow: "clip", overflow: "scroll"}}>{this.state.name}</Card.Header.Title>
           </Card.Header>
           <div style={{maxHeight: "100px", minHeight: "100px", overflow: "hidden", objectFit: "cover"}}>
-            <img src={this.state.imgSrc} alt={this.state.imgSrc === null ? "No cover available" : ""}/>
+            <img width={"100%"}src={this.state.imgSrc} alt={this.state.imgSrc == null ? "No cover available" : ""}/>
           </div>
           <Card.Footer>
             <Card.Footer.Item className="py-1 has-text-justified is-size-7" style={{minWidth: "33%"}}>{this.state.platform}</Card.Footer.Item>
