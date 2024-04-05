@@ -10,11 +10,11 @@ class App extends Component {
     "Rating": g => g.ratingTotal?.toUpperCase(),
   }
   filters = {
-    "PC": g => g.platform == "PC",
-    "Xbox": g => g.platform == "Xbox",
-    "PlayStation": g => g.platform == "PlayStation",
-    "Nintendo": g => g.platform == "Nintendo",
-    "Mobile": g => g.platform == "Mobile",
+    "PC": g => g.platform === "PC",
+    "Xbox": g => g.platform === "Xbox",
+    "PlayStation": g => g.platform === "PlayStation",
+    "Nintendo": g => g.platform === "Nintendo",
+    "Mobile": g => g.platform === "Mobile",
     "Has selected rating": g => g[this.state.ratingDisplayOption] != null,
     "Has story rating": g => g.ratingStory != null,
     "Has gameplay rating": g => g.ratingGplay != null,
@@ -164,7 +164,7 @@ class App extends Component {
   }
 
   passesFilter(g) {
-    if (this.state.filterOptions.size == 0) {
+    if (this.state.filterOptions.size === 0) {
       return true
     }
     let filterResults = [...this.state.filterOptions].map(f => Object.values(this.filters)[f](g))
